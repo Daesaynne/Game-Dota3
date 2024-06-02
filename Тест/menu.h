@@ -25,8 +25,8 @@ void menu(RenderWindow& window) {
 	int checker_music = 0;
 
 	Music music;
-	music.openFromFile("ost1.ogg");
-	music.setVolume(20);
+	music.openFromFile("ost2.ogg");
+	music.setVolume(50);
 	music.play();
 	
 	////////////////////////////лемч///////////////////
