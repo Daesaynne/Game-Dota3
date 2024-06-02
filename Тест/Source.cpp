@@ -122,12 +122,14 @@ int main()
     setlocale(LC_ALL, "Russian");
     randomMapGenerate();
 
-    
+
 
 
     RenderWindow window(VideoMode(1366, 768), "Dota 3", Style::Fullscreen);
     view.reset(FloatRect(0, 0, 640, 480));//размер вида камеры
     menu(window);//вызов меню
+
+
 
     Music music;
     music.openFromFile("ost1.ogg");
