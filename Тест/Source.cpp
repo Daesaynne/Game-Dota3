@@ -15,6 +15,7 @@ using namespace std;
 using namespace sf;
 
 bool restart = false;
+bool tron = false;
 HWND gameWindow;
 
 class Player { // класс Игрока
@@ -79,6 +80,7 @@ public:
     void interactionWithMap()//ф-ция взаимодействия с картой
     {
 
+
         for (int i = y / 32; i < (y + h) / 32; i++)//проходимся по тайликам, контактирующим с игроком,, то есть по всем квадратикам размера 32*32, которые мы окрашивали в 9 уроке. про условия читайте ниже.
             for (int j = x / 32; j < (x + w) / 32; j++)//икс делим на 32, тем самым получаем левый квадратик, с которым персонаж соприкасается. (он ведь больше размера 32*32, поэтому может одновременно стоять на нескольких квадратах). А j<(x + w) / 32 - условие ограничения координат по иксу. то есть координата самого правого квадрата, который соприкасается с персонажем. таким образом идем в цикле слева направо по иксу, проходя по от левого квадрата (соприкасающегося с героем), до правого квадрата (соприкасающегося с героем)
             {
@@ -117,6 +119,16 @@ public:
 
                 //хилка
                 if (TileMap[i][j] == 'h') { health += 15; TileMap[i][j] = ' '; }
+
+                //трон
+                if (TileMap[i][j] == '+')
+                {
+                    tron = true;
+                }
+                if (TileMap[i][j] != '+')
+                {
+                    tron = false;
+                }
             }
     }
 };
@@ -138,7 +150,7 @@ void game_run()
 
     //карта
     Image map_image;
-    map_image.loadFromFile("images/map_texture2_3.png");
+    map_image.loadFromFile("images/map_texture2_5.png");
     Texture map;
     map.loadFromImage(map_image);
     Sprite s_map;
@@ -152,6 +164,13 @@ void game_run()
     Text text_health(" ", font, 20);
     text_health.setFillColor(Color::Black);
     text_health.setStyle(Text::Italic);
+    
+    //трон время
+    font.loadFromFile("barlow-semibold.ttf");
+    Text text_timer(" ", font, 20);
+    text_timer.setFillColor(Color::Black);
+    text_timer.setStyle(Text::Italic);
+
 
     //счет
     Text text_score(" ", font, 20);
@@ -174,11 +193,29 @@ void game_run()
 
     Clock clock;
 
+    Clock gameTimeClock;//переменная игрового времени, будем здесь хранить время игры 
+    int gameTime = 0;//объявили игровое время, инициализировали.
+
     int createScoreTimer = 0;
+
+    
 
     while (window.isOpen() && restart == false)
     {
+        
         float time = clock.getElapsedTime().asMicroseconds(); // даем прошедшее время
+
+        if (tron == false)
+        {
+            gameTimeClock.restart();
+        }
+
+        else if (tron == true)
+        {
+            gameTime = gameTimeClock.getElapsedTime().asSeconds();
+        }
+        
+        
         clock.restart(); // Перезагружает время
         time = time / 800; // скорость игры
 
@@ -269,9 +306,13 @@ void game_run()
                 if ((TileMap[i][j] == 's')) s_map.setTextureRect(IntRect(160, 0, 32, 32));
                 if ((TileMap[i][j] == 'h')) s_map.setTextureRect(IntRect(192, 0, 32, 32));
                 if ((TileMap[i][j] == 'b')) s_map.setTextureRect(IntRect(224, 0, 32, 32));
+                if ((TileMap[i][j] == 'd')) s_map.setTextureRect(IntRect(256, 0, 32, 32));
+                if ((TileMap[i][j] == '+')) s_map.setTextureRect(IntRect(288, 0, 32, 32));
                 s_map.setPosition(j * 32, i * 32);//по сути раскидывает квадратики, превращая в карту. то есть задает каждому из них позицию. если убрать, то вся карта нарисуется в одном квадрате 32*32 и мы увидим один квадрат
                 window.draw(s_map);//рисуем квадратики на экран
             }
+
+        
 
         //выводим здоровье
         ostringstream playerScoreString;
@@ -284,6 +325,11 @@ void game_run()
         playerHealthString << hero.health;
         text_score.setString("Helth: " + playerHealthString.str());
         text_score.setPosition(view.getCenter().x - 185, view.getCenter().y + 200);
+
+        ostringstream playerOnTron;
+        playerOnTron << gameTime;
+        text_timer.setString("Time on tron: " + playerOnTron.str());
+        text_timer.setPosition(view.getCenter().x + 185, view.getCenter().y + 200);
 
         if (hero.life == false)
         {
@@ -321,6 +367,7 @@ void game_run()
         window.draw(hero.sprite);
         window.draw(text_health);
         window.draw(text_score);
+        window.draw(text_timer);
         //window.draw(pudge.sprite);
         window.display();
 
