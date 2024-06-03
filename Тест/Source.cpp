@@ -5,6 +5,7 @@
 #include <clocale>
 #include <sstream>
 #include <vector>
+#include <windows.h>
 
 #include "map.h"
 #include "view.h"
@@ -12,6 +13,9 @@
 
 using namespace std;
 using namespace sf;
+
+bool restart = false;
+HWND gameWindow;
 
 class Player { // класс Игрока
 private:
@@ -117,19 +121,14 @@ public:
     }
 };
 
-int main()
+void game_run()
 {
-    setlocale(LC_ALL, "Russian");
-    randomMapGenerate();
-
-
-
-
-    RenderWindow window(VideoMode(1366, 768), "Dota 3", Style::Fullscreen);
+    RenderWindow window(VideoMode(1366, 768), "Dota 3"/*, Style::Fullscreen*/);
     view.reset(FloatRect(0, 0, 640, 480));//размер вида камеры
-    menu(window);//вызов меню
 
 
+
+    gameWindow = GetForegroundWindow(); // Получаем дескриптор активного окна
 
     Music music;
     music.openFromFile("ost1.ogg");
@@ -168,8 +167,8 @@ int main()
     Player hero("runinghero3.png", 50, 50, 30, 33);
     hero.sprite.setPosition(300, 74);
 
-    Player pudge("pudge5.png", 300, 300, 75, 75);
-    pudge.sprite.setPosition(300, 74);
+    //Player pudge("pudge5.png", 300, 300, 75, 75);
+    //pudge.sprite.setPosition(300, 74);
 
     float CurrentFrame = 0; //хранит текущий кадр
 
@@ -177,7 +176,7 @@ int main()
 
     int createScoreTimer = 0;
 
-    while (window.isOpen())
+    while (window.isOpen() && restart == false)
     {
         float time = clock.getElapsedTime().asMicroseconds(); // даем прошедшее время
         clock.restart(); // Перезагружает время
@@ -190,10 +189,13 @@ int main()
                 window.close();
         }
 
-
+        //закрывашка на esc
+        if (Keyboard::isKeyPressed(Keyboard::Escape)) {
+            window.close();
+        }
 
         ///////////////////////////////////////////Управление персонажем с анимацией////////////////////////////////////////////////////////////////////////
-        if(hero.life == true)
+        if (hero.life == true)
         {
             if (Keyboard::isKeyPressed(Keyboard::A)) {
                 hero.dir = 1; hero.speed = 0.15;//dir =1 - направление вверх, speed =0.1 - скорость движения. Заметьте - время мы уже здесь ни на что не умножаем и нигде не используем каждый раз
@@ -230,14 +232,14 @@ int main()
             }
         }
 
-       //двигаем камеру с помощью мышки
+        //двигаем камеру с помощью мышки
         sf::Vector2i LocalPosition = Mouse::getPosition(window);//координаты мыши относительно x и y
 
 
         if (LocalPosition.x < 3) { view.move(-0.2 * time, 0); } //если в левом краю экрана -> влево
         if (LocalPosition.x > window.getSize().x - 3) { view.move(0.2 * time, 0); } //право
-        if (LocalPosition.y > window.getSize().y - 3) { view.move(0, 0.2*time); } //низ
-        if (LocalPosition.y < 3) { view.move(0, -0.2*time); }
+        if (LocalPosition.y > window.getSize().y - 3) { view.move(0, 0.2 * time); } //низ
+        if (LocalPosition.y < 3) { view.move(0, -0.2 * time); }
         hero.update(time);//оживляем объект p класса Player с помощью времени sfml, передавая время в качестве параметра функции update. благодаря этому персонаж может двигаться
 
 
@@ -252,7 +254,7 @@ int main()
         window.setView(view); //оживляем камеру
 
         //производим анимацию постоянно отчищаем и рисуем
-        window.clear(Color(159,185,93));
+        window.clear(Color(159, 185, 93));
 
 
         /////////////////////////////Рисуем карту/////////////////////
@@ -282,20 +284,154 @@ int main()
         playerHealthString << hero.health;
         text_score.setString("Helth: " + playerHealthString.str());
         text_score.setPosition(view.getCenter().x - 185, view.getCenter().y + 200);
-        
 
         if (hero.life == false)
         {
+
             text_die.setString("Wasted");
             text_die.setPosition(view.getCenter().x, view.getCenter().y);
             window.draw(text_die);
+
+            Text text_die_info(" ", font, 20);
+            text_die_info.setFillColor(Color::Black);
+            text_die_info.setStyle(Text::Bold);
+            text_die_info.setString("1)To resurrect, press TAB");
+            text_die_info.setPosition(view.getCenter().x - 200, view.getCenter().y - 200);
+
+            Text text_die_info1(" ", font, 20);
+            text_die_info1.setFillColor(Color::Black);
+            text_die_info1.setStyle(Text::Bold);
+            text_die_info1.setString("2)To turn off the game, press ESC");
+            text_die_info1.setPosition(view.getCenter().x - 200, view.getCenter().y - 150);
+            window.draw(text_die_info);
+            window.draw(text_die_info1);
+
+            
+            window.draw(text_die);
+            if (Keyboard::isKeyPressed(Keyboard::Tab))
+            {
+                window.clear();
+                window.close();
+                restart = true;
+            }
         }
+
+
 
         window.draw(hero.sprite);
         window.draw(text_health);
         window.draw(text_score);
-        window.draw(pudge.sprite);
+        //window.draw(pudge.sprite);
         window.display();
+
+
+    }
+}
+
+void menu(/*RenderWindow& window*/) {
+    RenderWindow window(VideoMode(1366, 768), "menu"/*, Style::Fullscreen*/);
+
+
+    Texture menuTexture1, menuTexture2, menuTexture3, menuTexture4, menuTexture5, aboutTexture, menuBackground, menuBackground_r;
+    Texture music_on_off, music_control, menu_info;
+    menuTexture1.loadFromFile("images/dota_3.png");
+    menuTexture2.loadFromFile("images/start_game.png");
+    menuTexture3.loadFromFile("images/settings.png");
+    menuTexture4.loadFromFile("images/exit.png");
+    menuTexture5.loadFromFile("images/about.png");
+    menuBackground.loadFromFile("images/menu_pudge.jpeg");
+    menuBackground_r.loadFromFile("images/menu_pudge1.png");
+    music_on_off.loadFromFile("images/music_on_off.png");
+    music_control.loadFromFile("images/control_music.png");
+    menu_info.loadFromFile("images/menu_info1.png");
+    Sprite menu1(menuTexture1), menu2(menuTexture2), menu3(menuTexture3), menu4(menuTexture4), menu5(menuTexture5), menuBg(menuBackground), menuBg_r(menuBackground_r);
+    Sprite set1(music_on_off), set2(music_control), menu_inf(menu_info);
+    int menuNum = 0, control = 1;
+    menu1.setPosition(105, 250);
+    menu2.setPosition(80, 450);
+    menu4.setPosition(80, 625);
+    menu5.setPosition(900, 650);
+
+    menuBg.setPosition(0, 0);
+
+    int checker_music = 0;
+
+    Music music;
+    music.openFromFile("ost2.ogg");
+    music.setVolume(50);
+    music.play();
+
+    ////////////////////////////МЕНЮ///////////////////
+    while (window.isOpen())
+    {
+
+        Event event;
+        while (window.pollEvent(event))
+        {
+            if (event.type == Event::Closed)
+                window.close();
+        }
+
+        menu2.setColor(Color::White);
+        menu4.setColor(Color::White);
+        menu5.setColor(Color::White);
+        menuNum = 0;
+
+
+        if (IntRect(100, 470, 420, 100).contains(Mouse::getPosition(window))) { menu2.setColor(Color::Yellow); menuNum = 1; }
+        if (IntRect(100, 650, 200, 100).contains(Mouse::getPosition(window))) { menu4.setColor(Color::Yellow); menuNum = 3; }
+        if (IntRect(900, 650, 450, 60).contains(Mouse::getPosition(window))) { menu5.setColor(Color::Red); menuNum = 4; }
+
+
+        if (Mouse::isButtonPressed(Mouse::Left))
+        {
+            //начать игру
+            if (menuNum == 1) {
+                music.pause();
+                window.close();
+                game_run();
+                //если нажали первую кнопку, то выходим из меню 
+
+            }
+
+            //выход
+            if (menuNum == 3) {
+                break;
+            }
+
+            //информация
+            if (menuNum == 4) {
+                menu_inf.setPosition(-100, 0);
+                window.draw(menu_inf);
+                window.display();
+                while (!Keyboard::isKeyPressed(Keyboard::Escape));
+            }
+
+        }
+
+        window.draw(menuBg);
+        window.draw(menu1);
+        window.draw(menu2);
+        window.draw(menu4);
+        window.draw(menu5);
+        window.display();
+    }
+    ////////////////////////////////////////////////////
+
+}
+
+
+
+int main()
+{
+    setlocale(LC_ALL, "Russian");
+    randomMapGenerate();
+    
+    menu();//вызов меню
+    while (restart)
+    {
+        restart = false;
+        game_run();
     }
 
     return 0;
