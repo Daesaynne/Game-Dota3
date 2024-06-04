@@ -237,7 +237,7 @@ public:
 
 void game_run()
 {
-    RenderWindow window(VideoMode(1366, 768), "Dota 3"/*, Style::Fullscreen*/);
+    RenderWindow window(VideoMode(1366, 768), "Dota 3", Style::Fullscreen);
     view.reset(FloatRect(0, 0, 640, 480));//размер вида камеры
 
     Texture button;
@@ -318,7 +318,10 @@ void game_run()
 
     //Враги
     Enemy pudge("pudge5.png", 500, 100, 72, 72);
-    Enemy pudge_1("pudge5.png", 500, 300, 72, 72);
+    Enemy pudge_1("pudge5.png", 600, 75, 72, 72);
+    Enemy pudge_2("pudge5.png", 800, 400, 72, 72);
+    Enemy pudge_3("pudge5.png", 900, 650, 72, 72);
+    Enemy pudge_4("pudge5.png", 500, 330, 72, 72);
 
 
     float CurrentFrame = 0; //хранит текущий кадр
@@ -346,7 +349,7 @@ void game_run()
         {
             gameTime = gameTimeClock.getElapsedTime().asSeconds();
 
-            if (gameTime == 20 && hero.PlayerScore == 10)
+            if (gameTime == 20 && hero.PlayerScore >= 15)
             {
                 win = true;
                 gameTimeClock.restart();
@@ -419,9 +422,9 @@ void game_run()
 
         pudge.update(time);
         pudge_1.update(time);
-
-
-       
+        pudge_2.update(time);
+        pudge_3.update(time);
+        pudge_4.update(time);
 
         if (abs(hero.getplayercoordinateX() - pudge.getEnemycoordinateX()) < hero.w && abs(hero.getplayercoordinateY() - pudge.getEnemycoordinateY()) < hero.h) {
             hero.health = hero.health - 0.08;
@@ -431,9 +434,17 @@ void game_run()
             hero.health = hero.health - 0.08;
         }
 
-        
+        if (abs(hero.getplayercoordinateX() - pudge_2.getEnemycoordinateX()) < hero.w && abs(hero.getplayercoordinateY() - pudge_2.getEnemycoordinateY()) < hero.h) {
+            hero.health = hero.health - 0.08;
+        }
 
-        
+        if (abs(hero.getplayercoordinateX() - pudge_3.getEnemycoordinateX()) < hero.w && abs(hero.getplayercoordinateY() - pudge_3.getEnemycoordinateY()) < hero.h) {
+            hero.health = hero.health - 0.08;
+        }
+
+        if (abs(hero.getplayercoordinateX() - pudge_4.getEnemycoordinateX()) < hero.w && abs(hero.getplayercoordinateY() - pudge_4.getEnemycoordinateY()) < hero.h) {
+            hero.health = hero.health - 0.08;
+        }
 
         window.setView(view); //оживляем камеру
 
@@ -583,8 +594,13 @@ void game_run()
         
         window.draw(buttonSet);
         window.draw(hero.sprite);
+
         window.draw(pudge.sprite);
         window.draw(pudge_1.sprite);
+        window.draw(pudge_2.sprite);
+        window.draw(pudge_3.sprite);
+        window.draw(pudge_4.sprite);
+
         window.draw(text_health);
         window.draw(text_score);
 
@@ -616,7 +632,7 @@ void game_run()
 }
 
 void menu(/*RenderWindow& window*/) {
-    RenderWindow window(VideoMode(1366, 768), "menu"/*, Style::Fullscreen*/);
+    RenderWindow window(VideoMode(1366, 768), "menu", Style::Fullscreen);
 
 
     Texture menuTexture1, menuTexture2, menuTexture3, menuTexture4, menuTexture5, aboutTexture, menuBackground, menuBackground_r;
