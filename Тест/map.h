@@ -5,12 +5,12 @@ const int WIDTH_MAP = 40;//размер карты ширина
 
 sf::String TileMap[HEIGHT_MAP] = {
 	"0000000000000000000000000000000000000000",
-	"0dddddd    1       1                   0",
-	"0dddddd  + 1       1                   0",
-	"0dddddd    1  f    1      r            0",
-	"0dddddd                   r            0",
-	"0                    f    r            0",
-	"0        s                r  s         0",
+	"0dddd1     1       1                   0",
+	"0dddd1   + 1       1                   0",
+	"0dddd1     1  f    1      r            0",
+	"0dddd1                    r            0",
+	"0    1 1             f    r            0",
+	"0ss  ss  s                r  s         0",
 	"0                                      0",
 	"0                  1                   0",
 	"0       h          1                   0",

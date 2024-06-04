@@ -253,10 +253,10 @@ void game_run()
     music.setVolume(30);
     music.play();
 
-    //бонус звук
-    SoundBuffer bonusBufer;
-    bonusBufer.loadFromFile("bonus.ogg");
-    Sound bonus(bonusBufer);
+    ////бонус звук
+    //SoundBuffer bonusBufer;
+    //bonusBufer.loadFromFile("bonus.ogg");
+    //Sound bonus(bonusBufer);
 
     
 
@@ -346,7 +346,7 @@ void game_run()
         {
             gameTime = gameTimeClock.getElapsedTime().asSeconds();
 
-            if (gameTime == 5)
+            if (gameTime == 20 && hero.PlayerScore == 10)
             {
                 win = true;
                 gameTimeClock.restart();
