@@ -240,7 +240,11 @@ void game_run()
     RenderWindow window(VideoMode(1366, 768), "Dota 3"/*, Style::Fullscreen*/);
     view.reset(FloatRect(0, 0, 640, 480));//размер вида камеры
 
-
+    Texture button;
+    button.loadFromFile("images/control_music.png");
+    Sprite buttonSet(button);
+    
+    buttonSet.scale(0.25f, 0.25f);
 
     gameWindow = GetForegroundWindow(); // Получаем дескриптор активного окна
 
@@ -254,6 +258,7 @@ void game_run()
     bonusBufer.loadFromFile("bonus.ogg");
     Sound bonus(bonusBufer);
 
+    
 
     //карта
     Image map_image;
@@ -282,7 +287,6 @@ void game_run()
     text_health.setStyle(Text::Italic);
     
     //трон время
-    font.loadFromFile("barlow-semibold.ttf");
     Text text_timer(" ", font, 20);
     text_timer.setFillColor(Color::Red);
     text_timer.setStyle(Text::Bold);
@@ -315,8 +319,7 @@ void game_run()
     //Враги
     Enemy pudge("pudge5.png", 500, 100, 72, 72);
     Enemy pudge_1("pudge5.png", 500, 300, 72, 72);
-    //Player pudge("pudge5.png", 300, 300, 75, 75);
-    //pudge.sprite.setPosition(300, 74);
+
 
     float CurrentFrame = 0; //хранит текущий кадр
 
@@ -327,7 +330,7 @@ void game_run()
 
     int createScoreTimer = 0;
 
-    
+
 
     while (window.isOpen() && restart == false)
     {
@@ -430,14 +433,6 @@ void game_run()
 
         
 
-
-        //createScoreTimer += time;
-        //if (createScoreTimer > 10000)
-        //{
-        //    randomGenerateScores();
-        //    createScoreTimer = 0;
-        //}
-
         
 
         window.setView(view); //оживляем камеру
@@ -517,9 +512,76 @@ void game_run()
             }
         }
 
+        int menuNum;
 
         
 
+        buttonSet.setPosition(view.getCenter().x - 50, view.getCenter().y + 190);
+        if (IntRect(600, 700, 100, 100).contains(Mouse::getPosition(window))) {
+            {
+                buttonSet.setColor(Color::Yellow); menuNum = 1;
+            }
+        }
+        else
+        {
+            menuNum = 0;
+        }
+
+        Text chat(" ", font, 10);
+        chat.setFillColor(Color::Black);
+        chat.setStyle(Text::Italic);
+        chat.setPosition(view.getCenter().x, view.getCenter().y + 100);
+
+        Text chat_1(" ", font, 10);
+        chat_1.setFillColor(Color::Black);
+        chat_1.setStyle(Text::Italic);
+        chat_1.setPosition(view.getCenter().x, view.getCenter().y + 115);
+
+        Text chat_2(" ", font, 10);
+        chat_2.setFillColor(Color::Black);
+        chat_2.setStyle(Text::Italic);
+        chat_2.setPosition(view.getCenter().x, view.getCenter().y + 130);
+
+        Text chat_3(" ", font, 10);
+        chat_3.setFillColor(Color::Black);
+        chat_3.setStyle(Text::Italic);
+        chat_3.setPosition(view.getCenter().x, view.getCenter().y + 145);
+
+        bool mousePressed = false; // флаг для отслеживания состояния нажатия кнопки мыши
+        int lastRandomNumber = 0; // переменная для хранения последнего сгенерированного числа
+        int generate = 0;
+
+        if (Mouse::isButtonPressed(Mouse::Left) && !mousePressed)
+        {
+            mousePressed = true; // установка флага нажатия кнопки
+
+            if (menuNum == 1) {
+                
+                lastRandomNumber = rand() % 10 + 1; // генерация случайного числа
+
+                chat.setString("-First Player: I **** your mother!");
+                window.draw(chat);
+
+                chat_1.setString("-Second Player: You son of a *****, shut up!");
+                window.draw(chat_1);
+
+                chat_2.setString("-First Player: **** you forest monster");
+                window.draw(chat_2);
+
+                chat_3.setString("-Second Player: You just ****** creep");
+                window.draw(chat_3);
+
+            }
+            
+        }
+        else if (!Mouse::isButtonPressed(Mouse::Left))
+        {
+            mousePressed = false; // сброс флага нажатия кнопки при отпускании кнопки
+            generate++;
+        }
+
+        
+        window.draw(buttonSet);
         window.draw(hero.sprite);
         window.draw(pudge.sprite);
         window.draw(pudge_1.sprite);
@@ -533,13 +595,6 @@ void game_run()
 
         if (win == true)
         {
-            //победа
-            /*font.loadFromFile("barlow-semibold.ttf");
-            Text text_win(" ", font, 20);
-            text_win.setFillColor(Color::Black);
-            text_win.setStyle(Text::Bold);
-            text_win.setString("YOU WIN");
-            text_win.setPosition(view.getCenter().x, view.getCenter().y);*/
             
             window.draw(win_sprite);
 
@@ -553,7 +608,7 @@ void game_run()
             
 
         }
-        //window.draw(pudge.sprite);
+
         window.display();
 
 
