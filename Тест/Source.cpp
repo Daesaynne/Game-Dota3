@@ -21,6 +21,10 @@ bool win = false;
 
 HWND gameWindow;
 
+
+
+
+
 class Player { // класс »грока
 private:
     float x, y = 0;
@@ -138,9 +142,96 @@ public:
     }
 };
 
+
+
+class Enemy {
+private:
+    float x, y;
+public:
+    float w, h, dx = 0, dy = 0.0, speed = 0;
+    int dir = 0; //направление (direction) движени€ врага
+
+    String File;
+    Image image;
+    Texture texture;
+    Sprite sprite;
+
+
+    Enemy(String F, float X, float Y, float W, float H)
+    {
+        File = F;
+        w = W, h = H;
+        image.loadFromFile("images/" + File);
+        texture.loadFromImage(image);
+        sprite.setTexture(texture);
+        x = X; y = Y;
+        sprite.setTextureRect(IntRect(0, 0, w, h));
+    }
+
+    void update(float time)
+    {
+        checkCollisionWithMap(dx, dy); // обрабатываем столкновение по X
+        if (dx == 0)
+            dx=dx-0.1;
+        x += dx * time;
+        y += dy * time;
+        sprite.setPosition(x, y); // задаем позицию спрайта в место его центра
+    }
+
+    void checkCollisionWithMap(float Dx, float Dy)
+    {
+        for (int i = y / 32; i < (y + h) / 32; i++)
+        {
+            for (int j = x / 32; j < (x + w) / 32; j++)
+            {
+                if (TileMap[i][j] == '0' || TileMap[i][j] == '1')
+                {
+                    if (dy > 0)
+                    {
+                        y = i * 32 - h;
+                        dy = -dy;
+                    }
+                    if (dy < 0)
+                    {
+                        y = i * 32 + 32;
+                        dy = -dy;
+                    }
+                    if (dx > 0)
+                    {
+                        
+                        x = j * 32 - w;
+                        dx = 0;
+                        //sprite.scale(-1, 1);
+                    }
+                    if (dx < 0)
+                    {
+                        x = j * 32 + 32;
+                        dx = -dx;
+
+                    }
+                }
+            }
+        }
+    }
+
+    float getEnemycoordinateX() {	//этим методом будем забирать координату ’	
+        return x;
+    }
+    float getEnemycoordinateY() {	//этим методом будем забирать координату Y 	
+        return y;
+    }
+
+    
+
+
+
+    
+
+};
+
 void game_run()
 {
-    RenderWindow window(VideoMode(1366, 768), "Dota 3", Style::Fullscreen);
+    RenderWindow window(VideoMode(1366, 768), "Dota 3"/*, Style::Fullscreen*/);
     view.reset(FloatRect(0, 0, 640, 480));//размер вида камеры
 
 
@@ -210,10 +301,14 @@ void game_run()
     Text text_win_1(" ", font, 25);
     text_win_1.setFillColor(Color::Red);
     text_win_1.setStyle(Text::Bold);
+
     //игроки
     Player hero("runinghero3.png", 50, 50, 30, 33);
     hero.sprite.setPosition(300, 74);
 
+    //¬раги
+    Enemy pudge("pudge5.png", 500, 100, 72, 72);
+    Enemy pudge_1("pudge5.png", 500, 300, 72, 72);
     //Player pudge("pudge5.png", 300, 300, 75, 75);
     //pudge.sprite.setPosition(300, 74);
 
@@ -313,14 +408,14 @@ void game_run()
         if (LocalPosition.y < 3) { view.move(0, -0.2 * time); }
         hero.update(time);//оживл€ем объект p класса Player с помощью времени sfml, передава€ врем€ в качестве параметра функции update. благодар€ этому персонаж может двигатьс€
 
-
+        pudge.update(time);
+        pudge_1.update(time);
         //createScoreTimer += time;
         //if (createScoreTimer > 10000)
         //{
         //    randomGenerateScores();
         //    createScoreTimer = 0;
         //}
-        hero.update(time);
 
         window.setView(view); //оживл€ем камеру
 
@@ -403,6 +498,8 @@ void game_run()
         
 
         window.draw(hero.sprite);
+        window.draw(pudge.sprite);
+        window.draw(pudge_1.sprite);
         window.draw(text_health);
         window.draw(text_score);
 
@@ -441,7 +538,7 @@ void game_run()
 }
 
 void menu(/*RenderWindow& window*/) {
-    RenderWindow window(VideoMode(1366, 768), "menu", Style::Fullscreen);
+    RenderWindow window(VideoMode(1366, 768), "menu"/*, Style::Fullscreen*/);
 
 
     Texture menuTexture1, menuTexture2, menuTexture3, menuTexture4, menuTexture5, aboutTexture, menuBackground, menuBackground_r;
