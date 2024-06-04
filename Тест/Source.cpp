@@ -30,9 +30,10 @@ private:
     float x, y = 0;
 public:
     float w, h, dx, dy, speed = 0; //координаты игрока х и у, высота ширина, ускорение (по х и по у), сама скорость
+    float xx, yy;
     int dir = 0; //направление (direction) движения игрока
     int PlayerScore;
-    int health;
+    float health;
     bool life;
     String File; //файл с расширением
     Image image;
@@ -51,6 +52,7 @@ public:
         texture.loadFromImage(image);//закидываем наше изображение в текстуру
         sprite.setTexture(texture);//заливаем спрайт текстурой
         x = X; y = Y;
+        xx = X; yy = Y;
         sprite.setTextureRect(IntRect(0,0,w,h));  //Задаем спрайту один прямоугольник
     }
 
@@ -149,6 +151,7 @@ private:
     float x, y;
 public:
     float w, h, dx = 0, dy = 0.0, speed = 0;
+    float xx, yy;
     int dir = 0; //направление (direction) движения врага
 
     String File;
@@ -165,6 +168,7 @@ public:
         texture.loadFromImage(image);
         sprite.setTexture(texture);
         x = X; y = Y;
+        xx = X; yy = Y;
         sprite.setTextureRect(IntRect(0, 0, w, h));
     }
 
@@ -228,6 +232,8 @@ public:
     
 
 };
+
+
 
 void game_run()
 {
@@ -410,12 +416,29 @@ void game_run()
 
         pudge.update(time);
         pudge_1.update(time);
+
+
+       
+
+        if (abs(hero.getplayercoordinateX() - pudge.getEnemycoordinateX()) < hero.w && abs(hero.getplayercoordinateY() - pudge.getEnemycoordinateY()) < hero.h) {
+            hero.health = hero.health - 0.08;
+        }
+
+        if (abs(hero.getplayercoordinateX() - pudge_1.getEnemycoordinateX()) < hero.w && abs(hero.getplayercoordinateY() - pudge_1.getEnemycoordinateY()) < hero.h) {
+            hero.health = hero.health - 0.08;
+        }
+
+        
+
+
         //createScoreTimer += time;
         //if (createScoreTimer > 10000)
         //{
         //    randomGenerateScores();
         //    createScoreTimer = 0;
         //}
+
+        
 
         window.setView(view); //оживляем камеру
 
