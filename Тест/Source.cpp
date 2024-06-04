@@ -16,6 +16,9 @@ using namespace sf;
 
 bool restart = false;
 bool tron = false;
+bool win = false;
+
+
 HWND gameWindow;
 
 class Player { // класс Игрока
@@ -31,6 +34,8 @@ public:
     Image image;
     Texture texture;
     Sprite sprite;
+
+    
 
     Player(String F, float X, float Y, float W, float H) { 
         health = 100; life = true;
@@ -79,7 +84,7 @@ public:
 
     void interactionWithMap()//ф-ция взаимодействия с картой
     {
-
+        
 
         for (int i = y / 32; i < (y + h) / 32; i++)//проходимся по тайликам, контактирующим с игроком,, то есть по всем квадратикам размера 32*32, которые мы окрашивали в 9 уроке. про условия читайте ниже.
             for (int j = x / 32; j < (x + w) / 32; j++)//икс делим на 32, тем самым получаем левый квадратик, с которым персонаж соприкасается. (он ведь больше размера 32*32, поэтому может одновременно стоять на нескольких квадратах). А j<(x + w) / 32 - условие ограничения координат по иксу. то есть координата самого правого квадрата, который соприкасается с персонажем. таким образом идем в цикле слева направо по иксу, проходя по от левого квадрата (соприкасающегося с героем), до правого квадрата (соприкасающегося с героем)
@@ -135,7 +140,7 @@ public:
 
 void game_run()
 {
-    RenderWindow window(VideoMode(1366, 768), "Dota 3"/*, Style::Fullscreen*/);
+    RenderWindow window(VideoMode(1366, 768), "Dota 3", Style::Fullscreen);
     view.reset(FloatRect(0, 0, 640, 480));//размер вида камеры
 
 
@@ -147,6 +152,11 @@ void game_run()
     music.setVolume(30);
     music.play();
 
+    //бонус звук
+    SoundBuffer bonusBufer;
+    bonusBufer.loadFromFile("bonus.ogg");
+    Sound bonus(bonusBufer);
+
 
     //карта
     Image map_image;
@@ -155,6 +165,15 @@ void game_run()
     map.loadFromImage(map_image);
     Sprite s_map;
     s_map.setTexture(map);
+
+    //картинка победы
+    Image win_image;
+    win_image.loadFromFile("images//black_font1.png");
+    Texture win_im;
+    win_im.loadFromImage(win_image);
+    Sprite win_sprite;
+    win_sprite.setTexture(win_im);
+
 
     //текст
     Font font;
@@ -168,10 +187,11 @@ void game_run()
     //трон время
     font.loadFromFile("barlow-semibold.ttf");
     Text text_timer(" ", font, 20);
-    text_timer.setFillColor(Color::Black);
-    text_timer.setStyle(Text::Italic);
+    text_timer.setFillColor(Color::Red);
+    text_timer.setStyle(Text::Bold);
 
 
+    
     //счет
     Text text_score(" ", font, 20);
     text_score.setFillColor(Color::Black);
@@ -182,6 +202,14 @@ void game_run()
     text_die.setFillColor(Color::Black);
     text_die.setStyle(Text::Bold);
 
+    //win
+    Text text_win(" ", font, 50);
+    text_win.setFillColor(Color::Red);
+    text_win.setStyle(Text::Bold);
+
+    Text text_win_1(" ", font, 25);
+    text_win_1.setFillColor(Color::Red);
+    text_win_1.setStyle(Text::Bold);
     //игроки
     Player hero("runinghero3.png", 50, 50, 30, 33);
     hero.sprite.setPosition(300, 74);
@@ -213,6 +241,12 @@ void game_run()
         else if (tron == true)
         {
             gameTime = gameTimeClock.getElapsedTime().asSeconds();
+
+            if (gameTime == 5)
+            {
+                win = true;
+                gameTimeClock.restart();
+            }
         }
         
         
@@ -232,7 +266,7 @@ void game_run()
         }
 
         ///////////////////////////////////////////Управление персонажем с анимацией////////////////////////////////////////////////////////////////////////
-        if (hero.life == true)
+        if (hero.life == true && win == false)
         {
             if (Keyboard::isKeyPressed(Keyboard::A)) {
                 hero.dir = 1; hero.speed = 0.15;//dir =1 - направление вверх, speed =0.1 - скорость движения. Заметьте - время мы уже здесь ни на что не умножаем и нигде не используем каждый раз
@@ -329,7 +363,10 @@ void game_run()
         ostringstream playerOnTron;
         playerOnTron << gameTime;
         text_timer.setString("Time on tron: " + playerOnTron.str());
-        text_timer.setPosition(view.getCenter().x + 185, view.getCenter().y + 200);
+        text_timer.setPosition(view.getCenter().x + 160, view.getCenter().y + 200);
+
+        
+        
 
         if (hero.life == false)
         {
@@ -363,11 +400,39 @@ void game_run()
         }
 
 
+        
 
         window.draw(hero.sprite);
         window.draw(text_health);
         window.draw(text_score);
-        window.draw(text_timer);
+
+        if (win == false)
+        {
+            window.draw(text_timer);
+        }
+
+        if (win == true)
+        {
+            //победа
+            /*font.loadFromFile("barlow-semibold.ttf");
+            Text text_win(" ", font, 20);
+            text_win.setFillColor(Color::Black);
+            text_win.setStyle(Text::Bold);
+            text_win.setString("YOU WIN");
+            text_win.setPosition(view.getCenter().x, view.getCenter().y);*/
+            
+            window.draw(win_sprite);
+
+            text_win.setString("YOU WIN");
+            text_win.setPosition(view.getCenter().x, view.getCenter().y);
+            window.draw(text_win);
+
+            text_win_1.setString("To exit the game, press ESC");
+            text_win_1.setPosition(view.getCenter().x-100, view.getCenter().y-100);
+            window.draw(text_win_1);
+            
+
+        }
         //window.draw(pudge.sprite);
         window.display();
 
@@ -376,7 +441,7 @@ void game_run()
 }
 
 void menu(/*RenderWindow& window*/) {
-    RenderWindow window(VideoMode(1366, 768), "menu"/*, Style::Fullscreen*/);
+    RenderWindow window(VideoMode(1366, 768), "menu", Style::Fullscreen);
 
 
     Texture menuTexture1, menuTexture2, menuTexture3, menuTexture4, menuTexture5, aboutTexture, menuBackground, menuBackground_r;
